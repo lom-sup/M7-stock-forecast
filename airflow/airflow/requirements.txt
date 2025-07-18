@@ -1,0 +1,15 @@
+pendulum
+pyarrow
+numpy 
+awscli
+requests
+python-dateutil
+yfinance
+pandas
+oauth2client
+gspread
+selenium
+beautifulsoup4
+webdriver-manager
+boto3
+PyMuPDF
