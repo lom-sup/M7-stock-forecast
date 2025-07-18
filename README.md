@@ -125,9 +125,10 @@ de5-finalproj-team5/
 │
 └── spark_script/
     └── main.py
-</details> ```
+ ```
+</details>
 
-- **분리된 영역**: Raw → Staging → Analytic  
+- **파티션**: Raw → Staging → Analytic  
 - **연-월별 파티션 저장**: `analytic_data/news/year=YYYY/month=MM/`
 
 ---
