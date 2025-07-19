@@ -1,12 +1,23 @@
 # 뉴스 및 FOMC 감성 분석 기반 M7 주가 예측
 
-## 개요
+## Notice!
+
+> 본 브랜치는 팀 프로젝트의 결과물 기반으로 개인적으로 정리한 버전입니다.
+> 민감한 정보(API 키 등)는 모두 대체되었으며, 예시 DAG 및 모델 코드 일부는 원본과 다를 수 있습니다.
+
+
+<br/>
+
+
+## 프로젝트 개요
 
 CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 감성 분석과 LSTM 시계열 예측 모델을 결합하여  
-**M7 기술주(GOOGL, AAPL, AMZN, MSFT, NVDA, META, TSLA)** 의 주가를 예측하는 프로젝트입니다.
+**M7 기술주(GOOGL, AAPL, AMZN, MSFT, NVDA, META, TSLA)** 의 주가를 예측하는 것을 목표로 한다. 
 
-- 뉴스 및 정책 발표의 **시장 영향력 정량화**  
+- 뉴스 및 정책 발표의 **비정형 데이터 정량화**
 - 비정형 데이터 기반 **시장 예측 가능성 탐색**
+- 자동화된 파이프라인을 통한 **ELT, ETL 자동화**
+- 피쳐 엔지니어링, 
 
 ---
 
@@ -18,61 +29,35 @@ CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 감성 �
 | 데이터 처리 및 분석 | Apache Spark, Pandas, FinBERT (Hugging Face Transformers), Pytorch, Colab   |
 | 시각화 및 대시보드  | Superset (Preset)                                                            |
 | 자동화 및 인프라     | Airflow, Docker, AWS EC2                                                    |
-| 협업 및 배포        | GitHub (CI/CD 구현 예정)                                                    |
+| 코드 관리           | GitHub (CI/CD 예정)                                                         |
+
+<br/>
+
 
 ---
 
-## 수행 과정
+## 수행 프로세스 요약
+
 1. **일 1회 M7 관련 뉴스 자동 수집**
+    - 뉴스 출처: NYT, FINNHUB, CNN, FOMC
+    - 수집 방식: 언론사 API 및 웹 크롤링
+    - 자동화: Airflow DAG로 스케줄링
 
-- 뉴스 출처: NYT, FINNHUB, CNN, FOMC
-- 수집 방식: 언론사 공식 API 및 웹 크롤링 (Selenium, BeautifulSoup 활용)
-- 자동화: Airflow DAG를 통해 매일 새벽 자동 실행
+2. **데이터 전처리 및 감성 분석**
+    - Spark와 Glue를 통해 정제
+    - FinBERT 모델로 긍/부정/중립 감성 점수 추출
+    - 결과는 S3에 저장 후 Glue-Athena로 테이블 구성
 
-2. **데이터 전처리 및 감성 분석 수행**
+3. **LSTM 기반 주가 예측 모델**
+    - 입력: 주가 데이터 + 뉴스 감성 점수
+    - 비교: LSTM, ARIMAX, stockonly(주가 데이터만 사용), stocksenti(감성 분석 데이터를 포함한 모델)
+    - Colab에서 PyTorch 기반 LSTM 학습
 
-- 수집된 뉴스 데이터를 Spark 및 AWS Glue로 전처리
-- 경제 특화 감성 모델 FinBERT를 적용하여
-- 각 뉴스 기사에 대해 긍정/중립/부정 감성 점수 추출
-- 분석 결과는 S3 분석 영역에 저장 및 Athena 테이블 생성
+4. **Superset을 통한 대시보드 시각화**
+    - 모델  채택 모델 예측 결과 시각화
+    - 뉴스 트렌드 분석
 
-3. **시계열 예측 모델(LSTM) 적용**
-
-- M7 기업의 주가 데이터 및 감성 점수를 활용하여
-- 다음날 종가를 예측하는 LSTM 모델 학습 및 추론
-- 실험군: stock+sentiment / 비교군: stockOnly
-- 모델 성능 비교 및 시각화: Superset 대시보드 제공
-
-## 프로젝트 구조
-![Image](https://github.com/user-attachments/assets/a25aca54-e0d1-4262-b008-c143373b5069)
-
-## 수행 방법
-
-### 1. EC2 내 Docker 환경 실행 (Airflow & Superset)
-
-```bash
-# 1. docker-compose.yaml이 있는 디렉토리에서 실행
-docker-compose up -d
-
-# 2. Airflow UI 접속: http://server:8080  (ID/PW: airflow / airflow)
-# 3. Superset UI 접속: http://server:8088 (ID/PW: admin / admin123)
-```
-
-- Airflow DAGs: `./dags/` 디렉토리에 dag 배치하고 서버 폴더와 마운트 (`docker-compose.yaml`)
-- Airflow Crawlering: `./dags/confing/` 디렉토리와 dags 디렉토리와 연동하여 실행 
-- Superset 대시보드: Docker 환경에서 Superset 공식 이미지를 기반으로 컨테이너 빌드 및 실행 → UI 상에서 Athena 연동 및 대시보드 직접 구성
-
-### 2. 의존 패키지 설치
-
-```bash
-pip install -r requirements.txt
-```
-- 각 Crawling 등 필요 패키지 공유 후 `requirements.txt`로 관리
-### 3. 감성 분석 / 모델 학습
-
-- **데이터 적재 및 전처리**: `airflow/airflow/dags` 폴더, NYPD, CNN, FINNHUB, FOMC 발표를 크롤링 하여 전처리(`main.py`)
-- - **감성 분석 (Spark Glue 기반)**: `main.py`, `BERT_process2.py`, `BERT_spark.py` 참고  
-- **주가 예측 (LSTM)**: LSTM_stock_BERT_v1.py, LSTM_stock_BERT_v2.py를 Google Colab에서 별도 실행(GPU 사용)
+<br/>
 
 ---
 
@@ -81,13 +66,13 @@ pip install -r requirements.txt
 | 파일명                  | 설명                                               |
 |-------------------------|----------------------------------------------------|
 | `docker-compose.yaml`   | Airflow & Superset 환경 구성                       |
-| `requirements.txt`      | 필수 Python 패키지 목록                            |
-| `glue_job_dag.py`       | 데이터 처리 DAG 정의                               |
-| `main.py`               | Glue 기반 전처리 및 S3 저장                        |
-| `BERT_process2.py`      | FinBERT 감성 분석 (Spark RDD 기반)                 |
+| `requirements.txt`      | Python 의존성 패키지 목록                          |
+| `glue_job_dag.py`       | Glue 기반 전처리 DAG 정의                          |
+| `main.py`               | Glue 전처리 전체 파이프라인                         |
+| `BERT_process2.py`      | FinBERT 감성 분석 (RDD 기반)                       |
 | `BERT_spark.py`         | FinBERT 감성 분석 (Pandas UDF 기반)                |
-| `LSTM_stock_BERT_v1.py` | LSTM 모델 실행                                     |
-| `LSTM_stock_BERT_v2.py` | LSTM 모델 실행                                     |
+| `LSTM_stock_BERT_v1.py` | PyTorch 기반 LSTM 예측 모델                         |
+| `LSTM_stock_BERT_v2.py` | 하이퍼파라미터 조정 버전                           |
 
 ---
 
@@ -125,25 +110,31 @@ de5-finalproj-team5/
 │
 └── spark_script/
     └── main.py
-</details> ```
+```
+</details>
 
-- **분리된 영역**: Raw → Staging → Analytic  
+- **파티션**: Raw → Staging → Analytic  
 - **연-월별 파티션 저장**: `analytic_data/news/year=YYYY/month=MM/`
+- **계층 구조 및 파티셔닝**으로 효율적 관리
+- Glue + Athena에서 테이블 생성 후 분석 및 시각화에 활용
+- Bert로 정량화된 데이터(analytic_data)는 LSTM Model Input Data로 사용
+
+<br/>
 
 ---
 
-## 대시보드 시각화 가능
+## 시각화 예시
 
-- Superset 대시보드에서 **뉴스 트렌드, 거래량 상관관계, 모델 평가, 예측 결과** 시각화  
-- Radar Chart 기반 모델 비교, 종목별 예측값 확인 가능
+- 뉴스 감성 점수 시계열 변화
+- M7 종목별 감성 변화와 예측 결과 비교
+- 모델별 MSE, 예측값, 실제값 비교 (Radar/Line Chart)
+- 종목별 특이점 탐색 및 분석
 
 ---
 
 ## 기대 효과
 
-- AWS + Airflow 기반 **자동화 및 확장성 확보**  
-- 뉴스/정책 발표 기반 **비정형 데이터 분석**  
-- **코로나 이후 시장 변동성 대응** 모델  
-- **비전문가 대상 대시보드 제공**으로 전달력 강화
+- AWS + Airflow 기반 자동화된 ETL 파이프라인 구현 경험
+- FinBERT 및 LSTM 결합 모델을 통한 감성 기반 주가 예측 시도
+- Superset 대시보드를 통한 실무형 보고서 제작 경험
 
----
