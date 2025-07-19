@@ -2,7 +2,8 @@
 
 ## Notice!
 
-> 본 브랜치는 팀 프로젝트의 결과물 기반으로 개인적으로 정리한 버전입니다.
+> 본 Repo는 팀 프로젝트의 Repo 기반으로 개인적으로 정리한 버전입니다.
+> 
 > 민감한 정보(API 키 등)는 모두 대체되었으며, 예시 DAG 및 모델 코드 일부는 원본과 다를 수 있습니다.
 
 
@@ -112,11 +113,9 @@ de5-finalproj-team5/
     └── main.py
 ```
 </details>
- ```
-</details>
 
-- **파티션**: Raw → Staging → Analytic  
-- **파티션**: Raw → Staging → Analytic  
+
+- **파티션**: Raw → Staging → Analytic   
 - **연-월별 파티션 저장**: `analytic_data/news/year=YYYY/month=MM/`
 - **계층 구조 및 파티셔닝**으로 효율적 관리
 - Glue + Athena에서 테이블 생성 후 분석 및 시각화에 활용
