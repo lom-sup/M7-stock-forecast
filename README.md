@@ -112,7 +112,10 @@ de5-finalproj-team5/
     └── main.py
 ```
 </details>
+ ```
+</details>
 
+- **파티션**: Raw → Staging → Analytic  
 - **파티션**: Raw → Staging → Analytic  
 - **연-월별 파티션 저장**: `analytic_data/news/year=YYYY/month=MM/`
 - **계층 구조 및 파티셔닝**으로 효율적 관리
