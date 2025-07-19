@@ -12,13 +12,16 @@
 
 ## 프로젝트 개요
 
-CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 감성 분석과 LSTM 시계열 예측 모델을 결합하여  
-**M7 기술주(GOOGL, AAPL, AMZN, MSFT, NVDA, META, TSLA)** 의 주가를 예측하는 것을 목표로 한다. 
+> CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 **감성 분석**과 **LSTM 시계열 예측 모델**을 결합하여  
+> **M7 기술주(GOOGL, AAPL, AMZN, MSFT, NVDA, META, TSLA)** 의 주가를 예측하는 것을 목표로 한다.
+
+<br/>
 
 - 뉴스 및 정책 발표의 **비정형 데이터 정량화**
 - 비정형 데이터 기반 **시장 예측 가능성 탐색**
 - 자동화된 파이프라인을 통한 **ELT, ETL 자동화**
-- 피쳐 엔지니어링, 
+- 주가-감성분석 포함모델(sentistock), 주가포함모델(stockonly), ARIMAX 등 다양한 모델 성능 비교 시각화 
+
 
 ---
 
@@ -62,10 +65,33 @@ CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 감성 �
 
 ---
 
-## 주요 코드 및 구조
+## 주요 파일 명세 및 설명
 
+### 📂 airflow/airflow
 | 파일명                  | 설명                                               |
 |-------------------------|----------------------------------------------------|
+| `docker-compose.yaml`   | Airflow & Superset 환경 구성                       |
+| `requirements.txt`      | Python 의존성 패키지 목록                          |
+| `Dockerfile`            | Airflow 실행 환경 정의                            |
+| `dags/`                 | 데이터 추출, 변환, 적재하는 dag 들어있는 폴더       |
+
+<br/>
+
+### 📂 ML_script_local
+| 파일명                  | 설명                                               |
+|-------------------------|----------------------------------------------------|
+| `BERT_process.py`      | FinBERT 감성 분석 (RDD 기반)                       |
+| `ARIMA_stock_BERT_demo.py | ARIMAX 모델 테스트 코드                          |
+| `LSTM_stock_BERT_v1.py` | PyTorch 기반 LSTM 예측 모델                         |
+| `LSTM_stock_BERT_v2.py` | 하이퍼파라미터 조정 버전                           |
+
+<br/>
+
+### 📂 spark_script
+| 파일명                  | 설명                                               |
+|-------------------------|----------------------------------------------------|
+| `BERT_process2.py`      | FinBERT 감성 분석 (RDD 기반)                       |
+| `BERT_spark.py`         | FinBERT 감성 분석 (Pandas UDF 기반)                |
 | `docker-compose.yaml`   | Airflow & Superset 환경 구성                       |
 | `requirements.txt`      | Python 의존성 패키지 목록                          |
 | `glue_job_dag.py`       | Glue 기반 전처리 DAG 정의                          |
@@ -74,6 +100,13 @@ CNN, NYT 뉴스 및 FOMC 발표 자료를 수집하고, FinBERT 기반 감성 �
 | `BERT_spark.py`         | FinBERT 감성 분석 (Pandas UDF 기반)                |
 | `LSTM_stock_BERT_v1.py` | PyTorch 기반 LSTM 예측 모델                         |
 | `LSTM_stock_BERT_v2.py` | 하이퍼파라미터 조정 버전                           |
+
+### 📂 team_project_readme
+| 파일명                  | 설명                                               |
+|-------------------------|----------------------------------------------------|
+| `README.md`             | 팀 프로젝트 당시 작성했던 readme                     |
+
+
 
 ---
 
