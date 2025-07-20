@@ -67,13 +67,25 @@
 
 ## 주요 파일 명세 및 설명
 
+<details>
+<summary><strong>📂 폴더명/파일 </strong></summary>
+
 ### 📂 airflow/airflow
-| 파일명                  | 설명                                               |
-|-------------------------|----------------------------------------------------|
-| `docker-compose.yaml`   | Airflow & Superset 환경 구성                       |
-| `requirements.txt`      | Python 의존성 패키지 목록                          |
-| `Dockerfile`            | Airflow 실행 환경 정의                            |
-| `dags/`                 | 데이터 추출, 변환, 적재하는 dag 들어있는 폴더       |
+| 파일명                  | 설명                                                                  |
+|-------------------------|-----------------------------------------------------------------------|
+| `docker-compose.yaml`   | Airflow & Superset 환경을 Docker 기반으로 실행하기 위한 설정 파일        |
+| `requirements.txt`      | Python 의존성 패키지 목록 (예: airflow, pandas 등)                      |
+| `Dockerfile`            | Airflow 컨테이너 빌드 시 사용되는 실행 환경 정의                        |
+| `dags/`                 | Airflow 스케줄러가 실행하는 DAG 파일 저장 폴더                          |
+
+<br/>
+
+### 📂 airflow/airflow/dags/config
+
+| 파일명                         | 설명 |
+|-------------------------------|------|
+| `*crawl*.py`                  | 원본 데이터 출처에서 크롤링하여 S3에 Parquet로 저장 |
+| `nytd_api_get.py`             | NYT API에서 M7 종목 관련 기사를 수집하여 S3에 Parquet로 저장 |
 
 <br/>
 
@@ -88,24 +100,23 @@
 <br/>
 
 ### 📂 spark_script
-| 파일명                  | 설명                                               |
-|-------------------------|----------------------------------------------------|
-| `BERT_process2.py`      | FinBERT 감성 분석 (RDD 기반)                       |
-| `BERT_spark.py`         | FinBERT 감성 분석 (Pandas UDF 기반)                |
-| `docker-compose.yaml`   | Airflow & Superset 환경 구성                       |
-| `requirements.txt`      | Python 의존성 패키지 목록                          |
-| `glue_job_dag.py`       | Glue 기반 전처리 DAG 정의                          |
-| `main.py`               | Glue 전처리 전체 파이프라인                         |
-| `BERT_process2.py`      | FinBERT 감성 분석 (RDD 기반)                       |
-| `BERT_spark.py`         | FinBERT 감성 분석 (Pandas UDF 기반)                |
-| `LSTM_stock_BERT_v1.py` | PyTorch 기반 LSTM 예측 모델                         |
-| `LSTM_stock_BERT_v2.py` | 하이퍼파라미터 조정 버전                           |
+| 파일명                      | 설명                                                                                  |
+|-----------------------------|---------------------------------------------------------------------------------------|
+| `main.py`                  |Glue Job 실행, NYT, CNN, FINNHUB 데이터 전처리 및 통합 로직을 포함한 메인 스크립트          |
+| `ARIMA_stock_BERT_demo.py` |주가 예측을 위해 ARIMA 모델과 BERT 기반 감성 분석 결과를 결합한 데모 코드                  |
+| `BERT_spark.py`            | 분산 처리 환경에서 Spark를 사용해 FinBERT 모델을 병렬로 실행하고 감성 점수 계산            |
+| `LSTM_stock_BERT*.py`      | FinBERT 감성 점수 및 주가 데이터를 바탕으로 시계열 LSTM 모델을 훈련                       |
+| `*cleansing*.py`           | 데이터 전처리(결측치 처리, 날짜 파싱 등)를 수행하여 S3에 저장하는 Spark 기반 Glue 스크립트  |
+| `data_union.py`            | 여러 출처(CNN, NYT, FINNHUB)로부터 수집되어 전처리된 데이터를 하나로 병합                 |
+
+<br/>
 
 ### 📂 team_project_readme
-| 파일명                  | 설명                                               |
-|-------------------------|----------------------------------------------------|
-| `README.md`             | 팀 프로젝트 당시 작성했던 readme                     |
+| 파일명                  | 설명                                    |
+|-------------------------|-----------------------------------------|
+| `README.md`             | 팀 프로젝트 당시 작성했던 README          |
 
+</details>
 
 
 ---
